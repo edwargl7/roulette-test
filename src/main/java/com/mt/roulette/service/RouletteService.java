@@ -23,7 +23,7 @@ public class RouletteService implements IRouletteService {
     }
 
     @Override
-    public DRoulette create(DRoulette roulette) {
-        return rouletteRepository.create(roulette);
+    public int create() {
+        return rouletteRepository.create();
     }
 }

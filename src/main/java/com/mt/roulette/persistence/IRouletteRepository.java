@@ -7,5 +7,5 @@ import java.util.List;
 public interface IRouletteRepository {
     List<DRoulette> getAll();
     DRoulette get(int id);
-    DRoulette create(DRoulette roulette);
+    int create();
 }

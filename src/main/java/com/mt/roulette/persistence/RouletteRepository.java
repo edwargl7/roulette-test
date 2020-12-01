@@ -63,19 +63,18 @@ public class RouletteRepository implements IRouletteRepository {
     }
 
     @Override
-    public DRoulette create(DRoulette roulette) {
+    public int create() {
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
         final String sql = "INSERT INTO roulettes (is_open, is_active) VALUES (?, ?)";
         jdbcTemplate.update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement statement = con.prepareStatement(sql, new String[]{"id"});
-                statement.setBoolean(1, roulette.getIsOpen());
-                statement.setBoolean(2, roulette.getIsActive());
+                statement.setBoolean(1, false);
+                statement.setBoolean(2, true);
                 return statement;
             }
         }, holder);
-        roulette.setId(holder.getKey().intValue());
-        return roulette;
+        return holder.getKey().intValue();
     }
 }

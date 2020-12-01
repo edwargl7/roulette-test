@@ -5,8 +5,8 @@ CREATE DATABASE roulette_game;
 DROP TABLE IF EXISTS roulettes;
 CREATE TABLE roulettes (
    id serial PRIMARY KEY,
-   is_open boolean DEFAULT true,
-   is_active boolean DEFAULT false
+   is_open boolean DEFAULT false ,
+   is_active boolean DEFAULT true
 );
 
 DROP TABLE IF EXISTS users;

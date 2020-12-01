@@ -20,8 +20,8 @@ public class RouletteController {
         return new ResponseEntity<>(rouletteService.getAll(), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/")
-    public ResponseEntity<DRoulette> createRoulette(@RequestBody DRoulette roulette) {
-        return new ResponseEntity<>(rouletteService.create(roulette), HttpStatus.CREATED);
+    @PostMapping("/")
+    public ResponseEntity<Integer> createRoulette() {
+        return new ResponseEntity<>(rouletteService.create(), HttpStatus.CREATED);
     }
 }
