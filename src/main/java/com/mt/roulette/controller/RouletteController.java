@@ -24,4 +24,22 @@ public class RouletteController {
     public ResponseEntity<Integer> createRoulette() {
         return new ResponseEntity<>(rouletteService.create(), HttpStatus.CREATED);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DRoulette> getRouletteById(@PathVariable("id") int id) {
+        final DRoulette roulette = rouletteService.get(id);
+        if (roulette == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(roulette, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/opening")
+    public ResponseEntity<String> rouletteOpening(@PathVariable("id") int id) {
+        if (rouletteService.opening(id)) {
+            return new ResponseEntity<>("successful", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("denied", HttpStatus.OK);
+        }
+    }
 }

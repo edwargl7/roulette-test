@@ -8,4 +8,5 @@ public interface IRouletteService {
     List<DRoulette> getAll();
     DRoulette get(int id);
     int create();
+    boolean opening(int id);
 }

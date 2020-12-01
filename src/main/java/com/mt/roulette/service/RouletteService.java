@@ -26,4 +26,9 @@ public class RouletteService implements IRouletteService {
     public int create() {
         return rouletteRepository.create();
     }
+
+    @Override
+    public boolean opening(int id) {
+        return rouletteRepository.opening(id);
+    }
 }

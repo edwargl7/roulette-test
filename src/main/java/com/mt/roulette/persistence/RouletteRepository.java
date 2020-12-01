@@ -46,7 +46,7 @@ public class RouletteRepository implements IRouletteRepository {
     public DRoulette get(int id) {
         final String sql = "SELECT * FROM roulettes WHERE id = ?";
         try {
-            final DRoulette obj = jdbcTemplate.queryForObject(sql, new Object[]{id}, new RowMapper<DRoulette>() {
+            return jdbcTemplate.queryForObject(sql, new Object[]{id}, new RowMapper<DRoulette>() {
                 @Override
                 public DRoulette mapRow(ResultSet rs, int rowNum) throws SQLException {
                     final DRoulette domain = new DRoulette();
@@ -56,7 +56,6 @@ public class RouletteRepository implements IRouletteRepository {
                     return domain;
                 }
             });
-            return obj;
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -76,5 +75,18 @@ public class RouletteRepository implements IRouletteRepository {
             }
         }, holder);
         return holder.getKey().intValue();
+    }
+
+    @Override
+    public boolean opening(int id) {
+        final DRoulette roulette = get(id);
+        if (roulette == null) {
+            return false;
+        } else if (!roulette.getIsActive() || roulette.getIsOpen()) {
+            return false;
+        } else {
+            final String sql = "UPDATE roulettes SET is_open = (?) WHERE id = (?)";
+            return (jdbcTemplate.update(sql, true, id) == 1);
+        }
     }
 }
