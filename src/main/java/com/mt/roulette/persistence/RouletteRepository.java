@@ -86,7 +86,20 @@ public class RouletteRepository implements IRouletteRepository {
             return false;
         } else {
             final String sql = "UPDATE roulettes SET is_open = (?) WHERE id = (?)";
-            return (jdbcTemplate.update(sql, true, id) == 1);
+            return jdbcTemplate.update(sql, true, id) == 1;
+        }
+    }
+
+    @Override
+    public boolean closing(int id) {
+        final DRoulette roulette = get(id);
+        if (roulette == null) {
+            return false;
+        } else if (!roulette.getIsActive() || !roulette.getIsOpen()) {
+            return false;
+        } else {
+            final String sql = "UPDATE roulettes SET is_active = (?) WHERE id = (?)";
+            return jdbcTemplate.update(sql, false, id) == 1;
         }
     }
 }

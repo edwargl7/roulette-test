@@ -9,4 +9,5 @@ public interface IRouletteRepository {
     DRoulette get(int id);
     int create();
     boolean opening(int id);
+    boolean closing(int id);
 }
