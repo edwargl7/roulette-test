@@ -10,5 +10,5 @@ public interface IBetService {
     List<DBet> getAllByRoulette(int rouletteId);
     List<DBet> setWinningAndLosingBet(int rouletteId, Map<String, String> winningNumberColor);
     DBet get(int id);
-    DBet create(int userId, int rouletteId, DBet bet);
+    DBet create(DBet bet);
 }

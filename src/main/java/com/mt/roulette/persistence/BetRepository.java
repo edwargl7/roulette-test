@@ -133,7 +133,7 @@ public class BetRepository implements IBetRepository {
     }
 
     @Override
-    public DBet create(int userId, int rouletteId, DBet bet) {
+    public DBet create(DBet bet) {
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
         final String sql = "INSERT INTO bets (roulette_id, user_id, money_bet, final_money, " +
                 "chosen_value, bet_by_number) VALUES (?, ?, ?, ?, ?, ?)";
@@ -142,8 +142,8 @@ public class BetRepository implements IBetRepository {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {
                 PreparedStatement statement = con.prepareStatement(sql, new String[]{"id"});
-                statement.setInt(1, rouletteId);
-                statement.setInt(2, userId);
+                statement.setInt(1, bet.getRouletteId());
+                statement.setInt(2, bet.getUserId());
                 statement.setDouble(3, bet.getMoneyBet());
                 statement.setDouble(4, bet.getFinalMoney());
                 statement.setString(5, bet.getChosenValue());

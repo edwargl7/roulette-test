@@ -29,8 +29,8 @@ public class BetService implements IBetRepository {
     }
 
     @Override
-    public DBet create(int userId, int rouletteId, DBet bet) {
-        return betRepository.create(userId, rouletteId, bet);
+    public DBet create(DBet bet) {
+        return betRepository.create(bet);
     }
 
     @Override

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("roulettes")
@@ -119,14 +120,19 @@ public class RouletteController {
         if (!roulette.getIsOpen() || !roulette.getIsActive()) {
             throw new CustomInvalidDataException("Roulette not allowed");
         } else {
-            return new ResponseEntity<>(betService.create(userId, id, bet), HttpStatus.CREATED);
+            bet.setRouletteId(id);
+            bet.setUserId(userId);
+            return new ResponseEntity<>(betService.create(bet), HttpStatus.CREATED);
         }
     }
 
     @PutMapping("/{id}/closing")
-    public ResponseEntity<List<DBet>> rouletteClosing(@PathVariable("id") int id) {
+    public ResponseEntity<Map<String, Object>> rouletteClosing(@PathVariable("id") int id) {
+        final Map<String, Object> body = new HashMap<String, Object>();
         int winningNumber = (int) (Math.random() * 37);
         HashMap<String, String> winningData = getWinningNumberColor(winningNumber);
-        return new ResponseEntity<>(betService.setWinningAndLosingBet(id, winningData), HttpStatus.OK);
+        body.put("winningData", winningData);
+        body.put("data", betService.setWinningAndLosingBet(id, winningData));
+        return new ResponseEntity<>(body, HttpStatus.OK);
     }
 }

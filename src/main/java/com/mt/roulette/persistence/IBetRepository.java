@@ -9,6 +9,6 @@ public interface IBetRepository {
     List<DBet> getAll();
     List<DBet> getAllByRoulette(int rouletteId);
     DBet get(int id);
-    DBet create(int userId, int rouletteId, DBet bet);
+    DBet create(DBet bet);
     List<DBet> setWinningAndLosingBet(int rouletteId, Map<String, String> winningNumberColor);
 }
