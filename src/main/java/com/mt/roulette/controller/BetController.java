@@ -1,5 +1,6 @@
 package com.mt.roulette.controller;
 
+import com.mt.roulette.controller.customExceptions.CustomNotFoundException;
 import com.mt.roulette.domain.DBet;
 import com.mt.roulette.service.BetService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ public class BetController {
     public ResponseEntity<DBet> getBetById(@PathVariable("id") int id) {
         final DBet bet = betService.get(id);
         if (bet == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new CustomNotFoundException("Bet with id: (" + id + ") not found");
         } else {
             return new ResponseEntity<>(bet, HttpStatus.OK);
         }

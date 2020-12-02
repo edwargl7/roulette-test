@@ -92,13 +92,6 @@ public class BetRepository implements IBetRepository {
         GeneratedKeyHolder holder = new GeneratedKeyHolder();
         final String sql = "INSERT INTO bets (roulette_id, user_id, money_bet, chosen_value," +
                 " bet_by_number) VALUES (?, ?, ?, ?, ?)";
-
-        System.out.println("###############################");
-        System.out.println(rouletteId);
-        System.out.println(userId);
-        System.out.println(bet.getMoneyBet());
-        System.out.println(bet.getChosenValue());
-        System.out.println(bet.getBetByNumber());
         jdbcTemplate.update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection con) throws SQLException {

@@ -1,5 +1,7 @@
 package com.mt.roulette.controller;
 
+import com.mt.roulette.controller.customExceptions.CustomInvalidDataException;
+import com.mt.roulette.controller.customExceptions.CustomNotFoundException;
 import com.mt.roulette.domain.DBet;
 import com.mt.roulette.domain.DRoulette;
 import com.mt.roulette.service.BetService;
@@ -9,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -41,6 +44,10 @@ public class RouletteController {
 
     @PutMapping("/{id}/opening")
     public ResponseEntity<String> rouletteOpening(@PathVariable("id") int id) {
+        if (rouletteService.get(id) == null) {
+            return new ResponseEntity<>("Roulette with id: (" + id + ") not found",
+                    HttpStatus.NOT_FOUND);
+        }
         if (rouletteService.opening(id)) {
             return new ResponseEntity<>("successful", HttpStatus.OK);
         } else {
@@ -59,20 +66,52 @@ public class RouletteController {
     }
 
     @PostMapping("/{id}/bets/")
-    public ResponseEntity<DBet> createBet(@RequestHeader(value = "User-Id") int userId, @PathVariable("id") int id, @RequestBody DBet bet) {
-        System.out.println("User-Id" + userId);
-        System.out.println("id" + id);
-        System.out.println("Bet Money" + bet.getMoneyBet());
-        System.out.println("Bet Value" + bet.getChosenValue());
-        System.out.println("Bet Number" + bet.getBetByNumber());
-
+    public ResponseEntity<DBet> createBet(@RequestHeader(value = "User-Id") int userId,
+                                          @PathVariable("id") int id, @RequestBody DBet bet) {
         DRoulette roulette = rouletteService.get(id);
+        validateMoneyBet(bet.getMoneyBet());
+        validateChosenValue(bet.getBetByNumber(), bet.getChosenValue());
         if (roulette == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new CustomNotFoundException("Roulette with id: (" + id + ") not found");
         } else if (!roulette.getIsOpen() || !roulette.getIsActive()) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            throw new CustomInvalidDataException("Roulette not allowed");
         } else {
             return new ResponseEntity<>(betService.create(userId, id, bet), HttpStatus.CREATED);
+        }
+    }
+
+    private void validateChosenValue(boolean betByNumer, String value){
+        if (betByNumer) {
+            validateNumber(value);
+        } else {
+            validateColor(value);
+        }
+    }
+
+    private void validateColor(String value) {
+        List<String> colors = Arrays.asList("black", "red");
+        if (!colors.contains(value.toLowerCase())) {
+            throw new CustomInvalidDataException("Color (" + value + ") invalid, choose " +
+                    "'black' or 'red', or numbers between 0 - 36 and betByNumber = true");
+        }
+    }
+
+    private void validateMoneyBet(double moneyBet) {
+        if (moneyBet > 10000.0 || moneyBet < 0.0) {
+            throw new CustomInvalidDataException("moneyBet is invalid, must be between 0.0 " +
+                    "and 10000.0");
+        }
+    }
+
+    private void validateNumber(String value) {
+        try {
+            int valueNumber = Integer.parseInt(value);
+            if (valueNumber < 0 || valueNumber > 36) {
+                throw new CustomInvalidDataException("chosenValue invalid, must be " +
+                        "between 0 - 36, or color 'black' or 'red' and betByNumber = true");
+            }
+        } catch (NumberFormatException e) {
+            throw new CustomInvalidDataException("chosenValue invalid, must be between 0 - 36");
         }
     }
 }
