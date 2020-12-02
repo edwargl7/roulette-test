@@ -21,6 +21,7 @@ CREATE TABLE bets (
    roulette_id integer,
    user_id integer,
    money_bet decimal,
+   final_money decimal,
    chosen_value VARCHAR(5),
    bet_by_number boolean,
    CONSTRAINT fk_roulette FOREIGN KEY(roulette_id) REFERENCES roulettes(id),

@@ -5,6 +5,7 @@ public class DBet {
     private int rouletteId;
     private int userId;
     private double moneyBet;
+    private double finalMoney;
     private String chosenValue;
     private boolean betByNumber;
 
@@ -38,6 +39,14 @@ public class DBet {
 
     public void setMoneyBet(double moneyBet) {
         this.moneyBet = moneyBet;
+    }
+
+    public double getFinalMoney() {
+        return finalMoney;
+    }
+
+    public void setFinalMoney(double finalMoney) {
+        this.finalMoney = finalMoney;
     }
 
     public String getChosenValue() {

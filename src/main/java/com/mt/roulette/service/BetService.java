@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BetService implements IBetRepository {
@@ -30,5 +31,10 @@ public class BetService implements IBetRepository {
     @Override
     public DBet create(int userId, int rouletteId, DBet bet) {
         return betRepository.create(userId, rouletteId, bet);
+    }
+
+    @Override
+    public List<DBet> setWinningAndLosingBet(int rouletteId, Map<String, String> winningNumberColor) {
+        return betRepository.setWinningAndLosingBet(rouletteId, winningNumberColor);
     }
 }

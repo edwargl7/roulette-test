@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -23,65 +24,8 @@ public class RouletteController {
     @Autowired
     private BetService betService;
 
-    @GetMapping("/")
-    public ResponseEntity<List<DRoulette>> getRoulettes() {
-        return new ResponseEntity<>(rouletteService.getAll(), HttpStatus.OK);
-    }
-
-    @PostMapping("/")
-    public ResponseEntity<Integer> createRoulette() {
-        return new ResponseEntity<>(rouletteService.create(), HttpStatus.CREATED);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<DRoulette> getRouletteById(@PathVariable("id") int id) {
-        final DRoulette roulette = rouletteService.get(id);
-        if (roulette == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(roulette, HttpStatus.OK);
-    }
-
-    @PutMapping("/{id}/opening")
-    public ResponseEntity<String> rouletteOpening(@PathVariable("id") int id) {
-        if (rouletteService.get(id) == null) {
-            return new ResponseEntity<>("Roulette with id: (" + id + ") not found",
-                    HttpStatus.NOT_FOUND);
-        }
-        if (rouletteService.opening(id)) {
-            return new ResponseEntity<>("successful", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("denied", HttpStatus.OK);
-        }
-    }
-
-    @GetMapping("/{id}/bets/")
-    public ResponseEntity<List<DBet>> getBetByRoulette(@PathVariable("id") int id) {
-        final List<DBet> bets = betService.getAllByRoulette(id);
-        if (bets == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } else {
-            return new ResponseEntity<>(bets, HttpStatus.OK);
-        }
-    }
-
-    @PostMapping("/{id}/bets/")
-    public ResponseEntity<DBet> createBet(@RequestHeader(value = "User-Id") int userId,
-                                          @PathVariable("id") int id, @RequestBody DBet bet) {
-        DRoulette roulette = rouletteService.get(id);
-        validateMoneyBet(bet.getMoneyBet());
-        validateChosenValue(bet.getBetByNumber(), bet.getChosenValue());
-        if (roulette == null) {
-            throw new CustomNotFoundException("Roulette with id: (" + id + ") not found");
-        } else if (!roulette.getIsOpen() || !roulette.getIsActive()) {
-            throw new CustomInvalidDataException("Roulette not allowed");
-        } else {
-            return new ResponseEntity<>(betService.create(userId, id, bet), HttpStatus.CREATED);
-        }
-    }
-
-    private void validateChosenValue(boolean betByNumer, String value){
-        if (betByNumer) {
+    private void validateChosenValue(boolean betByNumber, String value) {
+        if (betByNumber) {
             validateNumber(value);
         } else {
             validateColor(value);
@@ -113,5 +57,76 @@ public class RouletteController {
         } catch (NumberFormatException e) {
             throw new CustomInvalidDataException("chosenValue invalid, must be between 0 - 36");
         }
+    }
+
+    private DRoulette getRoulette(int rouletteId) {
+        DRoulette roulette = rouletteService.get(rouletteId);
+        if (roulette == null) {
+            throw new CustomNotFoundException("Roulette with id: (" + rouletteId + ") not found");
+        }
+        return roulette;
+    }
+
+    private HashMap<String, String> getWinningNumberColor(int winningNumber) {
+        HashMap<String, String> winningData = new HashMap<String, String>();
+        winningData.put("number", String.valueOf(winningNumber));
+        winningData.put("color", (winningNumber % 2 == 0) ? "black" : "red");
+        return winningData;
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<List<DRoulette>> getRoulettes() {
+        return new ResponseEntity<>(rouletteService.getAll(), HttpStatus.OK);
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<Integer> createRoulette() {
+        return new ResponseEntity<>(rouletteService.create(), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<DRoulette> getRouletteById(@PathVariable("id") int id) {
+        DRoulette roulette = getRoulette(id);
+        return new ResponseEntity<>(roulette, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}/opening")
+    public ResponseEntity<String> rouletteOpening(@PathVariable("id") int id) {
+        getRoulette(id);
+        if (rouletteService.opening(id)) {
+            return new ResponseEntity<>("successful", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("denied", HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("/{id}/bets/")
+    public ResponseEntity<List<DBet>> getBetByRoulette(@PathVariable("id") int id) {
+        final List<DBet> bets = betService.getAllByRoulette(id);
+        if (bets == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(bets, HttpStatus.OK);
+        }
+    }
+
+    @PostMapping("/{id}/bets/")
+    public ResponseEntity<DBet> createBet(@RequestHeader(value = "User-Id") int userId,
+                                          @PathVariable("id") int id, @RequestBody DBet bet) {
+        DRoulette roulette = getRoulette(id);
+        validateMoneyBet(bet.getMoneyBet());
+        validateChosenValue(bet.getBetByNumber(), bet.getChosenValue());
+        if (!roulette.getIsOpen() || !roulette.getIsActive()) {
+            throw new CustomInvalidDataException("Roulette not allowed");
+        } else {
+            return new ResponseEntity<>(betService.create(userId, id, bet), HttpStatus.CREATED);
+        }
+    }
+
+    @PutMapping("/{id}/closing")
+    public ResponseEntity<List<DBet>> rouletteClosing(@PathVariable("id") int id) {
+        int winningNumber = (int) (Math.random() * 37);
+        HashMap<String, String> winningData = getWinningNumberColor(winningNumber);
+        return new ResponseEntity<>(betService.setWinningAndLosingBet(id, winningData), HttpStatus.OK);
     }
 }
